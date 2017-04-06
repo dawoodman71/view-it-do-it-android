@@ -2,26 +2,45 @@ package viewitdoit.anchorsmedia.com.viewitdoit;
 
 import android.content.res.AssetFileDescriptor;
 import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcel;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.widget.TextView;
+
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.List;
 
-public class HomeActivity extends AppCompatActivity implements SurfaceHolder.Callback {
+import viewitdoit.anchorsmedia.com.viewitdoit.event.Event;
+import viewitdoit.anchorsmedia.com.viewitdoit.event.EventFragment;
+import viewitdoit.anchorsmedia.com.viewitdoit.event.EventPagerAdapter;
+import viewitdoit.anchorsmedia.com.viewitdoit.utils.VolleySingleton;
 
-    public final String TAG = "HomeActivity";
+public class HomeActivity extends AppCompatActivity implements SurfaceHolder.Callback, EventFragment.FragmentListener {
+
+    private static final String TAG = "HomeActivity";
+    private List<Event> events = null;
 
     private MediaPlayer mp = null;
     SurfaceView mSurfaceView = null;
+    ViewPager mViewPager = null;
+    PagerAdapter mViewPagerAdapter = null;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -53,6 +72,31 @@ public class HomeActivity extends AppCompatActivity implements SurfaceHolder.Cal
         mp = new MediaPlayer();
         mSurfaceView = (SurfaceView) findViewById(R.id.surface);
         mSurfaceView.getHolder().addCallback(this);
+
+        mViewPager = (ViewPager) findViewById(R.id.viewPager);
+
+
+        loadJsonFeed();
+    }
+
+    private void loadJsonFeed() {
+        Log.i(TAG, "loadJsonFeed");
+        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest
+                (Request.Method.GET, "https://www.viewitdoit.com/live_events.json", null, new Response.Listener<JSONArray>() {
+
+                    @Override
+                    public void onResponse(JSONArray response) {
+                        mViewPagerAdapter = new EventPagerAdapter(getSupportFragmentManager(), response);
+                        mViewPager.setAdapter(mViewPagerAdapter);
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.e(TAG, "onErrorResponse: " + error.toString());
+                    }
+                });
+        VolleySingleton.getInstance(this).addToRequestQueue(jsonArrayRequest);
     }
 
     @Override
@@ -95,5 +139,10 @@ public class HomeActivity extends AppCompatActivity implements SurfaceHolder.Cal
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
 
+    }
+
+    @Override
+    public void onFragmentFinish(Event event) {
+        Log.i(TAG, event.getTitle());
     }
 }
