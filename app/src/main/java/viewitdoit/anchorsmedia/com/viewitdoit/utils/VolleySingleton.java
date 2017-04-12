@@ -10,10 +10,14 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
+import com.android.volley.toolbox.ImageRequest;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
+
+import viewitdoit.anchorsmedia.com.viewitdoit.ViewItDoIt;
+import viewitdoit.anchorsmedia.com.viewitdoit.interfaces.ImageCallback;
 
 import static android.content.ContentValues.TAG;
 

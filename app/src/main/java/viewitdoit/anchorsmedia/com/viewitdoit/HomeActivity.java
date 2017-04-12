@@ -25,11 +25,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
 import viewitdoit.anchorsmedia.com.viewitdoit.event.Event;
 import viewitdoit.anchorsmedia.com.viewitdoit.event.EventFragment;
 import viewitdoit.anchorsmedia.com.viewitdoit.event.EventPagerAdapter;
+import viewitdoit.anchorsmedia.com.viewitdoit.utils.DateUtil;
 import viewitdoit.anchorsmedia.com.viewitdoit.utils.VolleySingleton;
 
 public class HomeActivity extends AppCompatActivity implements SurfaceHolder.Callback, EventFragment.FragmentListener {
@@ -86,7 +88,21 @@ public class HomeActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
                     @Override
                     public void onResponse(JSONArray response) {
-                        mViewPagerAdapter = new EventPagerAdapter(getSupportFragmentManager(), response);
+                        final JSONArray upcoming = new JSONArray();
+                        Date now = new Date();
+                        for (int i = 0; i < response.length(); i++) {
+                            try {
+                                JSONObject eventObject = response.getJSONObject(i);
+                                if(DateUtil.isUpcoming(eventObject.getString("start_datetime"))){
+                                    upcoming.put(eventObject);
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        mViewPagerAdapter = new EventPagerAdapter(getSupportFragmentManager(), R.layout.fragment_event_preview, upcoming);
                         mViewPager.setAdapter(mViewPagerAdapter);
                     }
                 }, new Response.ErrorListener() {
@@ -143,6 +159,6 @@ public class HomeActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
     @Override
     public void onFragmentFinish(Event event) {
-        Log.i(TAG, event.getTitle());
+        
     }
 }

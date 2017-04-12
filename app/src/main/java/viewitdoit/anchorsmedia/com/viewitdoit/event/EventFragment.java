@@ -1,10 +1,8 @@
 package viewitdoit.anchorsmedia.com.viewitdoit.event;
 
-import android.app.Fragment;
 import android.content.Context;
-import android.net.Uri;
+import android.graphics.Typeface;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,11 +11,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.android.volley.toolbox.ImageLoader;
-
-import org.json.JSONObject;
+import com.android.volley.toolbox.NetworkImageView;
 
 import viewitdoit.anchorsmedia.com.viewitdoit.R;
 import viewitdoit.anchorsmedia.com.viewitdoit.ViewItDoIt;
+import viewitdoit.anchorsmedia.com.viewitdoit.utils.BitmapLruCache;
 import viewitdoit.anchorsmedia.com.viewitdoit.utils.VolleySingleton;
 
 public class EventFragment extends android.support.v4.app.Fragment {
@@ -28,6 +26,7 @@ public class EventFragment extends android.support.v4.app.Fragment {
     private ImageView imageView;
     private TextView textTitle;
     private TextView textBody;
+    private TextView textCountdown;
     private FragmentListener mListener;
 
     public EventFragment(){
@@ -57,14 +56,25 @@ public class EventFragment extends android.support.v4.app.Fragment {
 
         Event event = getArguments().getParcelable(EVENT_KEY);
 
-        imageView = (ImageView) rootView.findViewById(R.id.imageView);
-        imageView.setImageURI(Uri.parse(event.getSmallImageUrl()));
+        if(event.getLargeImageUrl() != null){
+            ImageLoader.ImageCache imageCache = new BitmapLruCache();
+            ImageLoader imageLoader = new ImageLoader(VolleySingleton.getInstance(ViewItDoIt.getAppContext()).getRequestQueue(), imageCache);
+            NetworkImageView imageView = (NetworkImageView) rootView.findViewById(R.id.imageView);
+            imageView.setImageUrl(event.getLargeImageUrl(), imageLoader);
+        }
 
         textTitle = (TextView) rootView.findViewById(R.id.textTitle);
+        Typeface lato_black = Typeface.createFromAsset(getContext().getAssets(), "fonts/lato/lato_black.ttf");
+        textTitle.setTypeface(lato_black);
         textTitle.setText(event.getTitle());
 
         textBody = (TextView) rootView.findViewById(R.id.textDescription);
+        Typeface lato_bold = Typeface.createFromAsset(getContext().getAssets(), "fonts/lato/lato_bold.ttf");
+        textTitle.setTypeface(lato_bold);
         textBody.setText(event.getShortBody());
+
+        textCountdown = (TextView) rootView.findViewById(R.id.textCountdown);
+        textCountdown.setText("Starts " + event.getStartDateTime());
 
         rootView.setOnClickListener(new View.OnClickListener() {
             @Override

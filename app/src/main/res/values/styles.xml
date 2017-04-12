@@ -8,4 +8,8 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="EventTitle" parent="@android:style/TextAppearance.Medium">
+        <item name="android:color">#fafafa</item>
+    </style>
+
 </resources>

@@ -13,11 +13,13 @@ import java.util.List;
 
 public class EventPagerAdapter extends FragmentStatePagerAdapter {
 
+    private int mLayout;
     private JSONArray mEvents;
     private int mNum;
 
-    public EventPagerAdapter(FragmentManager fm, JSONArray events) {
+    public EventPagerAdapter(FragmentManager fm, int layout, JSONArray events) {
         super(fm);
+        mLayout = layout;
         mEvents = events;
         mNum = mEvents.length();
     }
